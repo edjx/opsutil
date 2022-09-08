@@ -1,0 +1,40 @@
+- hosts: prod
+  vars:
+    edjos_image: "edjos-22.7.3-bios.img"
+    edjos_image_folder: "prod"
+    user: 
+    password:
+
+  tasks:
+    - name: Create Upgrade directory
+      file:
+       path: /root/upgrade
+       state: directory
+       mode: 0755
+
+    - name: Get version from edjos_image
+      shell: echo {{ edjos_image }} | sed 's/[^0-9.[-]]*//g' | sed 's|^.\(.*\).$|\1|' | sed 's/.$//'
+      register: result
+
+    - name: Download Upgrade script
+      get_url:
+       url: https://resources.edjx.io/beta/edjos/{{ result.stdout }}/upgrade.sh
+       dest: /root/upgrade
+       mode: 0755
+
+    - name: Upgrade The node
+      shell: ./upgrade.sh upgrade {{ edjos_image }} {{ edjos_image_folder }}
+      args:
+        chdir: /root/upgrade
+      register: output
+
+    - name: Get output
+      debug:
+       var: output.stdout
+
+
+    - name: Gracefully stop all service
+      shell: /usr/local/bin/edjx node stop -u {{ user }} -p{{ password }}
+
+    - name: reboot
+      shell: shutdown -r +1s
