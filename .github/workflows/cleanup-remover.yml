@@ -38,7 +38,6 @@ jobs:
         with:
           go-version: ">=1.18.0"
           check-latest: true
-      - run: go install -v ./doddl
       - name: Digital Ocean Auth
         uses: digitalocean/action-doctl@v2.1.0
         with:
@@ -46,4 +45,4 @@ jobs:
       - name: Delete Instances
         id: delete
         run: |
-          for i in $(doddl -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -l tag -a delete -j | jq '.[].id'); do echo "Removing Droplet $i"; doctl compute droplet-action power-off $i; done
+          for i in $(go run opsutil/doddl/main.go -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -l tag -a delete -j | jq '.[].id'); do echo "Removing Droplet $i"; doctl compute droplet-action power-off $i; done

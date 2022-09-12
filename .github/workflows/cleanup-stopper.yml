@@ -38,7 +38,6 @@ jobs:
         with:
           go-version: ">=1.18.0"
           check-latest: true
-      - run: go install -v ./doddl
       - name: Install Slack Notify
         run: go install -v github.com/technosophos/slack-notify@latest
       - name: Digital Ocean Auth
@@ -49,4 +48,4 @@ jobs:
         id: stop
         run: |
           export SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}
-          for i in $(doddl -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -l no-whitelist -j | jq '.[].id'); do export SLACK_MESSAGE=$(echo "Shutting down instance with id $i"); slack-notify; doctl compute droplet-action power-off $i; done
+          for i in $(go run opsutil/doddl/main.go -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -l no-whitelist -j | jq '.[].id'); do export SLACK_MESSAGE=$(echo "Shutting down instance with id $i"); slack-notify; doctl compute droplet-action power-off $i; done

@@ -8,7 +8,7 @@ require (
 	github.com/spf13/cobra v1.5.0
 )
 
-replace github.com/arush-sal/tcsm v0.0.0 => ./
+replace github.com/edjx/opsutil/tcsm v0.0.0 => ./
 
 require (
 	github.com/google/go-querystring v1.1.0 // indirect
