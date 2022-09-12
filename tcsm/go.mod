@@ -1,4 +1,4 @@
-module github.com/arush-sal/tcsm
+module github.com/edjx/opsutil/tcsm
 
 go 1.18
 
