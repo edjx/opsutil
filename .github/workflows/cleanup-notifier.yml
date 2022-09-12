@@ -1,0 +1,50 @@
+name: Droplet Cleanup Notifier
+
+on:
+  schedule:
+    # Runs "at 06:00 on Monday and Tuesday" (see https://crontab.guru)
+    - cron: "0 6 * * 1,2"
+  workflow_dispatch:
+
+jobs:
+  notify:
+    name: Setup Tooling and Notify on Slack
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Setup GOOS specific build cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            %LocalAppData%\go-build
+          key: ${{ runner.os }}-gobuild-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-gobuild-
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ">=1.18.0"
+          check-latest: true
+      - run: go install -v ./doddl
+      - name: Install Slack Notify
+        run: go install -v github.com/technosophos/slack-notify@latest
+      - name: Send Slack Notification
+        run: |
+          export DO_TOKEN=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          export SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}
+          export SLACK_MESSAGE=$( echo '```'; doddl -l no-whitelist -j | jq -r '(.[] | [.ip, "||", .name]) | @tsv'; echo '```' )
+          doddl -l no-whitelist
+          slack-notify
