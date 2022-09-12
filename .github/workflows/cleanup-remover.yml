@@ -38,6 +38,7 @@ jobs:
         with:
           go-version: ">=1.18.0"
           check-latest: true
+      - run: cd doddl; go install -v .
       - name: Digital Ocean Auth
         uses: digitalocean/action-doctl@v2.1.0
         with:
