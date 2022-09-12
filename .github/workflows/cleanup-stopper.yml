@@ -48,4 +48,4 @@ jobs:
         id: stop
         run: |
           export SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}
-          for i in $(go run opsutil/doddl/main.go -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -l no-whitelist -j | jq '.[].id'); do export SLACK_MESSAGE=$(echo "Shutting down instance with id $i"); slack-notify; doctl compute droplet-action power-off $i; done
+          for i in $(go run ./doddl/main.go -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -l no-whitelist -j | jq '.[].id'); do export SLACK_MESSAGE=$(echo "Shutting down instance with id $i"); slack-notify; doctl compute droplet-action power-off $i; done

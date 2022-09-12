@@ -45,4 +45,4 @@ jobs:
       - name: Delete Instances
         id: delete
         run: |
-          for i in $(go run opsutil/doddl/main.go -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -l tag -a delete -j | jq '.[].id'); do echo "Removing Droplet $i"; doctl compute droplet-action power-off $i; done
+          for i in $(go run ./doddl/main.go -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -l tag -a delete -j | jq '.[].id'); do echo "Removing Droplet $i"; doctl compute droplet-action power-off $i; done

@@ -44,6 +44,6 @@ jobs:
         run: |
           export DO_TOKEN=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           export SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}
-          export SLACK_MESSAGE=$( echo '```'; go run opsutil/doddl/main.go -l no-whitelist -j | jq -r '(.[] | [.ip, "||", .name]) | @tsv'; echo '```' )
-          go run opsutil/doddl/main.go -l no-whitelist
+          export SLACK_MESSAGE=$( echo '```'; go run ./doddl/main.go -l no-whitelist -j | jq -r '(.[] | [.ip, "||", .name]) | @tsv'; echo '```' )
+          go run ./doddl/main.go -l no-whitelist
           slack-notify
