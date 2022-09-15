@@ -1,0 +1,52 @@
+name: Droplet Cleanup Stopper
+
+on:
+  schedule:
+    # Runs "at 06:00 on Wednesday" (see https://crontab.guru)
+    - cron: "0 6 * * 3"
+  workflow_dispatch:
+
+jobs:
+  stack:
+    name: Get Droplet List
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Setup GOOS specific build cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            %LocalAppData%\go-build
+          key: ${{ runner.os }}-gobuild-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-gobuild-
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ">=1.18.0"
+          check-latest: true
+      - run: cd doddl; go install -v .
+      - name: Install Slack Notify
+        run: go install -v github.com/technosophos/slack-notify@latest
+      - name: Digital Ocean Auth
+        uses: digitalocean/action-doctl@v2.1.0
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Stop Instances
+        id: stop
+        run: |
+          export SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}
+          for i in $(doddl -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -l no-whitelist -j | jq '.[].id'); do export SLACK_MESSAGE=$(echo "Shutting down instance with id $i"); slack-notify; doctl compute droplet-action power-off $i; done

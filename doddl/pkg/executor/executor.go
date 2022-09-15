@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/arush-sal/doddl/pkg/getter"
+	"github.com/edjx/opsutil/doddl/pkg/getter"
 )
 
 var whiteList = []string{

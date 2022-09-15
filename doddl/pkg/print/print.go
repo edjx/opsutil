@@ -6,7 +6,7 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/arush-sal/doddl/pkg/getter"
+	"github.com/edjx/opsutil/doddl/pkg/getter"
 )
 
 func Printer(ds []getter.Droplet) {

@@ -1,4 +1,4 @@
-module github.com/arush-sal/doddl
+module github.com/edjx/opsutil/doddl
 
 go 1.18
 

@@ -1,0 +1,49 @@
+name: Droplet Cleanup Remover
+
+on:
+  # schedule:
+  #   # Runs "at 06:00 on Saturday" (see https://crontab.guru)
+  #   - cron: "0 6 * * 6"
+  workflow_dispatch:
+
+jobs:
+  stack:
+    name: Get Droplet List
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Setup GOOS specific build cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            %LocalAppData%\go-build
+          key: ${{ runner.os }}-gobuild-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-gobuild-
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ">=1.18.0"
+          check-latest: true
+      - run: cd doddl; go install -v .
+      - name: Digital Ocean Auth
+        uses: digitalocean/action-doctl@v2.1.0
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Delete Instances
+        id: delete
+        run: |
+          for i in $(go run ./doddl/main.go -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -l tag -a delete -j | jq '.[].id'); do echo "Removing Droplet $i"; doctl compute droplet-action power-off $i; done
