@@ -1,0 +1,87 @@
+- hosts: prod
+  vars:
+    edjos_image: "edjos-22.9.1-bios.img"
+    edjos_image_folder: "prod"
+    user: 
+    password:
+    DO_ACCESS: ""
+    DO_SECRET: ""
+    project: prod
+    license_key: test
+
+  tasks:
+    - name: Create Upgrade directory
+      file:
+       path: /root/upgrade
+       state: directory
+       mode: 0755
+
+    - name: Get version from edjos_image
+      shell: echo {{ edjos_image }} | sed 's/[^0-9.[-]]*//g' | sed 's|^.\(.*\).$|\1|' | sed 's/.$//'
+      register: result
+
+    - name: Download Upgrade artifacts
+      get_url:
+       url: https://resources.edjx.io/beta/edjos/{{ result.stdout }}/{{ item }}
+       dest: /root/upgrade
+       mode: 0755
+      with_items:
+       - upgrade.sh
+       - .s3cfg
+       - edjdatastore-migration.sh
+       - dbmigrate
+
+    - name: Configure secrets for spaces intraction
+      replace:
+        path: /root/upgrade/.s3cfg
+        regexp: '^access_key =.*'
+        replace: "access_key={{ DO_ACCESS }}"
+ 
+    
+    - name: Configure secrets for spaces intraction
+      replace:
+        path: /root/upgrade/.s3cfg
+        regexp: '^secret_key =.*'
+        replace: "secret_key={{ DO_SECRET }}"
+
+    - name: Configure region for spaces intraction
+      replace:
+        path: /root/upgrade/.s3cfg
+        regexp: 'nyc3'
+        replace: "sfo3"
+
+    - name: Copy .s3cfg file to home folder
+      copy:
+        src: /root/upgrade/.s3cfg
+        dest: /root/.s3cfg
+        remote_src: yes
+        owner: root
+        group: wheel
+        mode: '0644' 
+
+    - name: Run pre Upgrade
+      shell: echo "./upgrade.sh pre {{ license_key }} {{ project }}"
+      args:
+        chdir: /root/upgrade
+      register: outputPre
+
+    - name: Get output
+      debug:
+       var: outputPre.stdout
+
+   
+    - name: Upgrade The node
+      shell: echo "./upgrade.sh upgrade {{ edjos_image }} {{ edjos_image_folder }}"
+      args:
+        chdir: /root/upgrade
+      register: output
+
+    - name: Get output upgrade
+      debug:
+       var: output.stdout
+ 
+    - name: Gracefully stop all service
+      shell: /usr/local/bin/edjx node stop -u {{ user }} -p{{ password }}
+
+    - name: reboot
+      shell: shutdown -r +1s
