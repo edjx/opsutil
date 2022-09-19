@@ -46,4 +46,8 @@ jobs:
       - name: Delete Instances
         id: delete
         run: |
-          for i in $(go run ./doddl/main.go -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -l tag -a delete -j | jq '.[].id'); do echo "Removing Droplet $i"; doctl compute droplet-action power-off $i; done
+          export DO_TOKEN=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          export SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}
+          export SLACK_MESSAGE=$(echo "List of instance to be removed:\n\n $(doddl -s -l no-whitelist)")
+          slack-notify
+          for i in $(doddl -s -l no-whitelist -j | jq '.[].id'); do doctl compute droplet delete $i; done
