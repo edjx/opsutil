@@ -48,5 +48,8 @@ jobs:
       - name: Stop Instances
         id: stop
         run: |
+          export DO_TOKEN=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           export SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}
-          for i in $(doddl -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -l no-whitelist -j | jq '.[].id'); do export SLACK_MESSAGE=$(echo "Shutting down instance with id $i"); slack-notify; doctl compute droplet-action power-off $i; done
+          export SLACK_MESSAGE=$(echo "List of instance to be shutdown:\n\n $(doddl -l no-whitelist)")
+          slack-notify
+          for i in $(doddl -l no-whitelist -j | jq '.[].id'); do doctl compute droplet-action power-off $i; done
