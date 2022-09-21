@@ -45,6 +45,8 @@ jobs:
         run: |
           export DO_TOKEN=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           export SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}
+          export SLACK_MESSAGE=$(echo "The following instances would be shutdown and later removed:"; echo ""; echo "";)
+          slack-notify
           export SLACK_MESSAGE=$( echo '```'; doddl -l no-whitelist -j | jq -r '(.[] | [.ip, "||", .name]) | @tsv'; echo '```' )
           doddl -l no-whitelist
           slack-notify

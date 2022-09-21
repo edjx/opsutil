@@ -50,7 +50,7 @@ jobs:
         run: |
           export DO_TOKEN=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           export SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}
-          export SLACK_MESSAGE=$(echo "List of instance to be shutdown:\n\n")
+          export SLACK_MESSAGE=$(echo "List of instance to be shutdown:"; echo ""; echo "";)
           slack-notify
           export SLACK_MESSAGE=$( echo '```'; doddl -l no-whitelist -j | jq -r '(.[] | [.ip, "||", .name]) | @tsv'; echo '```' )
           slack-notify
