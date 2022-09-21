@@ -2,8 +2,8 @@ name: Droplet Cleanup Notifier
 
 on:
   schedule:
-    # Runs "at 06:00 on Monday and Tuesday" (see https://crontab.guru)
-    - cron: "0 6 * * 1,2"
+    # Runs "at 23:00 on Monday and Tuesday" (see https://crontab.guru)
+    - cron: "0 23 * * 1,2"
   workflow_dispatch:
 
 jobs:
