@@ -50,6 +50,8 @@ jobs:
         run: |
           export DO_TOKEN=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           export SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}
-          export SLACK_MESSAGE=$(echo "List of instance to be shutdown:\n\n $(doddl -l no-whitelist)")
+          export SLACK_MESSAGE=$(echo "List of instance to be shutdown:\n\n")
+          slack-notify
+          export SLACK_MESSAGE=$( echo '```'; doddl -l no-whitelist -j | jq -r '(.[] | [.ip, "||", .name]) | @tsv'; echo '```' )
           slack-notify
           for i in $(doddl -l no-whitelist -j | jq '.[].id'); do doctl compute droplet-action power-off $i; done
