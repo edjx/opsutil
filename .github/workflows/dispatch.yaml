@@ -31,7 +31,7 @@ jobs:
         with:
           token: ${{ inputs.EDJX_GH_TOKEN }}
           repository: ${{ matrix.repository }}
-          event-type: edjnapi
+          event-type: "${{ inputs.repo }}"
           client-payload: '{
             "version": "${{ inputs.longVersion }}",
             "variable": "${{ inputs.repo }}",
