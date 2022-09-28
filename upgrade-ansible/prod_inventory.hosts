@@ -1,5 +1,5 @@
 [writer]
-157.245.126.4
+production-writer-node ansible_host=157.245.126.4
 
 [bootstrap]
 157.245.10.34
@@ -18,7 +18,7 @@ iad ansible_host=37.19.206.72
 sin ansible_host=143.244.33.94
 sea ansible_host=84.17.41.40
 den ansible_host=84.17.63.63
-DP-1723 ansible_host=138.199.2.56
+DP-1714 ansible_host=138.199.2.56
 DP-2121 ansible_host=89.187.181.149
 DP-2276 ansible_host=212.102.40.175
 DP-1523 ansible_host=89.187.179.131
@@ -37,6 +37,82 @@ DP-7794 ansible_host=143.244.62.117
 DP-13705 ansible_host=185.24.9.91
 fl-node-01 ansible_host=67.204.6.210
 
+[blr]
+production-dns-ns2 ansible_host=159.89.162.70
+
+[sgp]
+production-dns-ns3 ansible_host=128.199.76.43
+sin ansible_host=143.244.33.94
+
+[sfo]
+production-dns-ns1 ansible_host=137.184.225.246
+
+[nyc]
+production-greedy-node-1 ansible_host=167.71.100.125
+production-bootstrap-node ansible_host=157.245.10.34
+production-greedy-node-0 ansible_host=167.71.104.86
+DP-1523 ansible_host=89.187.179.131
+
+[torronto]
+DP-13705 ansible_host=185.24.9.91
+
+[sydney]
+DP-7794 ansible_host=143.244.62.117
+
+[london]
+DP-2077 ansible_host=195.181.165.135
+
+[ams]
+DP-1355 ansible_host=212.102.34.26
+
+[paris]
+DP-1723 ansible_host=138.199.2.56
+
+[tokyo]
+DP-2787 ansible_host=178.249.213.73
+
+[hongkong]
+DP-2968 ansible_host=178.249.208.215
+
+[stockholm]
+DP-1578 ansible_host=37.19.222.217
+
+[madrid]
+DP-1317 ansible_host=185.76.11.55
+
+[frankfurt]
+DP-1984 ansible_host=195.181.174.55
+
+[losangeles]
+DP-1365 ansible_host=84.17.45.167
+
+[miami]
+DP-1499 ansible_host=143.244.35.81
+
+[dallas]
+DP-2276 ansible_host=212.102.40.175
+
+[texas]
+fl-node-01 ansible_host=67.204.6.210 
+
+[chicago]
+DP-2121 ansible_host=89.187.181.149
+
+[atlanta]
+DP-1714 ansible_host=138.199.2.56
+
+[saopaulo]
+DP-8301 ansible_host=45.134.141.80
+
+[kansas]
+iad ansible_host=37.19.206.72
+
+[seattle]
+sea ansible_host=84.17.41.40
+
+[denver]
+den ansible_host=84.17.63.63
+
 [do:children]
 writer
 bootstrap
@@ -44,3 +120,19 @@ dns
 
 [datapacket:children]
 non-greedy
+
+[usa:children]
+denver
+seattle
+kansas
+atlanta
+chicago
+texas
+losangeles
+miami
+dallas
+nyc
+sfo
+
+
+
