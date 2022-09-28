@@ -1,4 +1,4 @@
-name: Repo Dispatch to EDJRuntime and EDJOS
+name: Repo Dispatch
 
 on:
   workflow_call:
@@ -12,25 +12,25 @@ on:
       release:
         required: true
         type: string
+      target:
+        required: true
+        type: string
     secrets:
       EDJX_GH_TOKEN:
         required: true
 
 jobs:
   dispatch:
-    name: Update edjos and edjruntime Manifest
+    name: Update Manifest
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/heads/development') || startsWith(github.ref, 'refs/tags/')
-    strategy:
-      matrix:
-        repository: [edjx/edjruntime, edjx/edjos]
 
     steps:
       - name: Dispatch Version
         uses: peter-evans/repository-dispatch@v1
         with:
           token: ${{ inputs.EDJX_GH_TOKEN }}
-          repository: ${{ matrix.repository }}
+          repository: ${{ inputs.target }}
           event-type: "${{ inputs.repo }}"
           client-payload: '{
             "version": "${{ inputs.longVersion }}",
