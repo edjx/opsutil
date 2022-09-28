@@ -1,0 +1,38 @@
+name: Repo Dispatch
+
+on:
+  workflow_call:
+    inputs:
+      repo:
+        required: true
+        type: string
+      longVersion:
+        required: true
+        type: string
+      release:
+        required: true
+        type: string
+      target:
+        required: true
+        type: string
+    secrets:
+      EDJX_GH_TOKEN:
+        required: true
+
+jobs:
+  dispatch:
+    name: Update Manifest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Dispatch Version
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ inputs.EDJX_GH_TOKEN }}
+          repository: ${{ inputs.target }}
+          event-type: "${{ inputs.repo }}"
+          client-payload: '{
+            "version": "${{ inputs.longVersion }}",
+            "variable": "${{ inputs.repo }}",
+            "release": "${{ inputs.release }}"
+            }'

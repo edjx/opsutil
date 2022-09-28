@@ -2,8 +2,8 @@ name: Droplet Cleanup Stopper
 
 on:
   schedule:
-    # Runs "at 06:00 on Wednesday" (see https://crontab.guru)
-    - cron: "0 6 * * 3"
+    # Runs "at UTC 23:00 on Wednesday" (see https://crontab.guru)
+    - cron: "0 23 * * 3"
   workflow_dispatch:
 
 jobs:
@@ -48,5 +48,10 @@ jobs:
       - name: Stop Instances
         id: stop
         run: |
+          export DO_TOKEN=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           export SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}
-          for i in $(doddl -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -l no-whitelist -j | jq '.[].id'); do export SLACK_MESSAGE=$(echo "Shutting down instance with id $i"); slack-notify; doctl compute droplet-action power-off $i; done
+          export SLACK_MESSAGE=$(echo "List of instance to be shutdown:"; echo ""; echo "";)
+          slack-notify
+          export SLACK_MESSAGE=$( echo '```'; doddl -l no-whitelist -j | jq -r '(.[] | [.ip, "||", .name]) | @tsv'; echo '```' )
+          slack-notify
+          for i in $(doddl -l no-whitelist -j | jq '.[].id'); do doctl compute droplet-action power-off $i; done

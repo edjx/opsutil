@@ -15,11 +15,9 @@ var whiteList = []string{
 	"production-nodes",
 	"k8s",
 	"Odoo",
-	"load-docker",
-	"blueforce",
-	"Cenit",
 	"west-nodes",
 	"lab-nodes",
+	"termination-protected",
 }
 
 func GetDOClient(token string) *getter.DOClient {
