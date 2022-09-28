@@ -1,0 +1,45 @@
+name: Determine Release
+
+on:
+  workflow_call:
+
+jobs:
+  release:
+    name: Set Release Version
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+
+    outputs:
+      version: ${{ steps.development.outputs.release || steps.load.outputs.release }}
+      longversion: ${{ steps.development.outputs.release-long || steps.load.outputs.release }}
+      stack: ${{ steps.development.outputs.stack || steps.load.outputs.stack }}
+      release: ${{ steps.load.outputs.release != '' }}
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: "0"
+
+      - name: Set Development Version
+        if: startsWith(github.ref, 'refs/heads/development')
+        id: development
+        run: |
+          date=`date +%D`
+          major=$(echo $date | cut -d '/' -f 3)
+          minor=$(echo $date | cut -d '/' -f 1 | sed 's/^0*//')
+          build=$(git rev-parse --short HEAD)
+          longCommit=$(git rev-parse HEAD)
+          version=$major.$minor.0-$build
+          longversion=$major.$minor.0-$longCommit
+          echo "::set-output name=release::$version"
+          echo "::set-output name=release-long::$longversion"
+          echo "::set-output name=stack::development"
+
+      - name: Set Load Version
+        if: startsWith(github.ref, 'refs/tags/')
+        id: load
+        run: |
+          version=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,' | sed -e 's/^v//')
+          echo "::set-output name=release::$version"
+          echo "::set-output name=stack::load"
