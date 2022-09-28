@@ -23,7 +23,6 @@ jobs:
   dispatch:
     name: Update Manifest
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/development') || startsWith(github.ref, 'refs/tags/')
 
     steps:
       - name: Dispatch Version
