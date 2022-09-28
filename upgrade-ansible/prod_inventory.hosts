@@ -1,0 +1,46 @@
+[writer]
+157.245.126.4
+
+[bootstrap]
+157.245.10.34
+
+[greedy]
+167.71.104.86
+167.71.100.125
+
+[dns]
+production-dns-ns1 ansible_host=137.184.225.246
+production-dns-ns2 ansible_host=159.89.162.70
+production-dns-ns3 ansible_host=128.199.76.43
+
+[non-greedy]
+iad ansible_host=37.19.206.72
+sin ansible_host=143.244.33.94
+sea ansible_host=84.17.41.40
+den ansible_host=84.17.63.63
+DP-1723 ansible_host=138.199.2.56
+DP-2121 ansible_host=89.187.181.149
+DP-2276 ansible_host=212.102.40.175
+DP-1523 ansible_host=89.187.179.131
+DP-1499 ansible_host=143.244.35.81
+DP-1365 ansible_host=84.17.45.167
+DP-1984 ansible_host=195.181.174.55
+DP-1317 ansible_host=185.76.11.55
+DP-1578 ansible_host=37.19.222.217
+DP-2968 ansible_host=178.249.208.215
+DP-2787 ansible_host=178.249.213.73
+DP-1723 ansible_host=138.199.27.210
+DP-1355 ansible_host=212.102.34.26
+DP-2077 ansible_host=195.181.165.135
+DP-8301 ansible_host=45.134.141.80
+DP-7794 ansible_host=143.244.62.117
+DP-13705 ansible_host=185.24.9.91
+fl-node-01 ansible_host=67.204.6.210
+
+[do:children]
+writer
+bootstrap
+dns
+
+[datapacket:children]
+non-greedy
