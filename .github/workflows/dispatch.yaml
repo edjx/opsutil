@@ -32,7 +32,7 @@ jobs:
       - name: Dispatch Version
         uses: peter-evans/repository-dispatch@v1
         with:
-          token: ${{ inputs.EDJX_GH_TOKEN }}
+          token: ${{ secrets.EDJX_GH_TOKEN }}
           repository: ${{ inputs.target }}
           event-type: ${{ inputs.repo }}
           client-payload: '{
