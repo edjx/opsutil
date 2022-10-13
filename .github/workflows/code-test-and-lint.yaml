@@ -1,0 +1,116 @@
+name: Code Quality Check
+
+on:
+  workflow_call:
+    inputs:
+      make_command:
+        required: true
+        type: string
+
+env:
+  GONOSUMDB: github.com/edjx/*
+  GOPROXY: ${{ secrets.GOPROXY }}
+
+jobs:
+  lint-and-test:
+    name: Linter and Tester
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+      contents: read
+    strategy:
+      matrix:
+        run: [lint, test]
+
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.x
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          token: ${{ secrets.EDJNET_GITHUB_ACCESS_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            %LocalAppData%\go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Compile protobuf and mocks
+        run: make ${{ inputs.make_command }}
+
+      - name: Download Dependencies
+        run: go mod download
+        env:
+          GOPROXY: ${{ secrets.GOPROXY }}
+
+      ############################################################
+      - name: Run tests
+        if: github.event_name == 'pull_request' && startsWith(matrix.run, 'test')
+        run: go test ./...
+
+      - name: Run tests with the race detector enabled
+        if: github.event_name == 'pull_request'&& startsWith(matrix.run, 'test')
+        run: go test ./... -race
+
+      - name: Run tests with the race detector and coverage enabled
+        if: startsWith(matrix.run, 'test')
+        run: go test $(go list ./... | grep -v pb | grep -v mock) -coverpkg=$(go list ./... 2> /dev/null | grep -v pb | grep -v mock | tr '\n' ",") -json -coverprofile=coverage.out > test-report.json
+
+      - name: Upload the test report artifact
+        uses: actions/upload-artifact@v2
+        if: startsWith(matrix.run, 'test')
+        with:
+          name: test-report
+          path: test-report.json
+          retention-days: 1
+
+      - name: Upload the coverage report artifact
+        uses: actions/upload-artifact@v2
+        if: startsWith(matrix.run, 'test')
+        with:
+          name: coverage
+          path: coverage.out
+          retention-days: 1
+
+      ############################################################
+
+      - name: Run golangci-lint
+        if: github.event_name == 'pull_request' && startsWith(matrix.run, 'lint')
+        uses: golangci/golangci-lint-action@v2
+        with:
+          skip-go-installation: true
+          only-new-issues: true
+          skip-pkg-cache: true
+          skip-build-cache: true
+
+      - name: Run golangci-lint with checkstyle output
+        if: github.event_name != 'pull_request' && startsWith(matrix.run, 'lint')
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.47.2
+          golangci-lint run --issues-exit-code 0 --out-format checkstyle > golangci-lint.xml
+
+      - name: Upload golangci-lint output as artifact
+        if: github.event_name != 'pull_request' && startsWith(matrix.run, 'lint')
+        uses: actions/upload-artifact@v2
+        with:
+          name: golangci-lint
+          path: golangci-lint.xml
+          retention-days: 1

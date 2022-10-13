@@ -2,12 +2,20 @@ name: Determine Release
 
 on:
   workflow_call:
+    outputs:
+      version:
+        value: ${{ jobs.release.outputs.version }}
+      longversion:
+        value: ${{ jobs.release.outputs.longversion }}
+      stack:
+        value: ${{ jobs.release.outputs.stack }}
+      release:
+        value: ${{ jobs.release.outputs.release }}
 
 jobs:
   release:
     name: Set Release Version
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
 
     outputs:
       version: ${{ steps.development.outputs.release || steps.load.outputs.release }}
@@ -22,7 +30,7 @@ jobs:
           fetch-depth: "0"
 
       - name: Set Development Version
-        if: startsWith(github.ref, 'refs/heads/development')
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'pull_request'
         id: development
         run: |
           date=`date +%D`

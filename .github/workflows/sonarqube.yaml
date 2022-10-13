@@ -1,0 +1,44 @@
+name: Sonarqube Scan
+
+on:
+  workflow_call:
+    secrets:
+      SONAR_TOKEN:
+        required: true
+      SONAR_HOST_URL:
+        required: true
+
+jobs:
+  sonarqube:
+    name: Upload test and lint results to SonarQube
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: test-report
+      - uses: actions/download-artifact@v2
+        with:
+          name: coverage
+      - uses: actions/download-artifact@v2
+        with:
+          name: golangci-lint
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: Delete artifacts
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: |
+            test-report
+            coverage
+            golangci-lint
