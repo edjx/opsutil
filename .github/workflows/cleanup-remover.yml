@@ -1,9 +1,9 @@
 name: Droplet Cleanup Remover
 
 on:
-  # schedule:
-  #   # Runs "at 06:00 on Saturday" (see https://crontab.guru)
-  #   - cron: "0 6 * * 6"
+  schedule:
+    # Runs "at UTC 23:00 on Wednesday" (see https://crontab.guru)
+    - cron: "0 23 * * 0"
   workflow_dispatch:
 
 jobs:
