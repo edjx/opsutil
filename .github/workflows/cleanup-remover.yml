@@ -52,6 +52,6 @@ jobs:
           export SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }}
           export SLACK_MESSAGE=$(echo "List of instance to be removed:"; echo ""; echo "";)
           slack-notify
-          export SLACK_MESSAGE=$( echo '```'; doddl -l no-whitelist -j | jq -r '(.[] | [.ip, "||", .name]) | @tsv'; echo '```' )
+          export SLACK_MESSAGE=$( echo '```'; doddl -s -l no-whitelist -j | jq -r '(.[] | [.ip, "||", .name]) | @tsv'; echo '```' )
           slack-notify
           for i in $(doddl -s -l no-whitelist -j | jq '.[].id'); do doctl compute droplet delete -f $i; done
