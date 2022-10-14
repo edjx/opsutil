@@ -93,7 +93,7 @@ jobs:
       ############################################################
 
       - name: Run golangci-lint
-        if: startsWith(matrix.run, 'lint')
+        if: github.event_name == 'pull_request' && startsWith(matrix.run, 'lint')
         uses: golangci/golangci-lint-action@v2
         with:
           skip-go-installation: true
