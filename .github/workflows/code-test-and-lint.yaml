@@ -93,7 +93,7 @@ jobs:
       ############################################################
 
       - name: Run golangci-lint
-        if: github.event_name == 'pull_request' && startsWith(matrix.run, 'lint')
+        if: startsWith(matrix.run, 'lint')
         uses: golangci/golangci-lint-action@v2
         with:
           skip-go-installation: true
@@ -102,13 +102,13 @@ jobs:
           skip-build-cache: true
 
       - name: Run golangci-lint with checkstyle output
-        if: github.event_name != 'pull_request' && startsWith(matrix.run, 'lint')
+        if: startsWith(matrix.run, 'lint')
         run: |
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.47.2
           golangci-lint run --issues-exit-code 0 --out-format checkstyle > golangci-lint.xml
 
       - name: Upload golangci-lint output as artifact
-        if: github.event_name != 'pull_request' && startsWith(matrix.run, 'lint')
+        if: startsWith(matrix.run, 'lint')
         uses: actions/upload-artifact@v2
         with:
           name: golangci-lint
