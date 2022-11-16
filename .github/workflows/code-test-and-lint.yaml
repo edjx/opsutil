@@ -70,7 +70,7 @@ jobs:
         if: github.event_name == 'pull_request'&& startsWith(matrix.run, 'test')
         run: go test ./... -race
 
-      - name: Run tests with the race detector and coverage enabled
+      - name: Run tests with the coverage enabled
         if: startsWith(matrix.run, 'test')
         run: go test $(go list ./... | grep -v pb | grep -v mock) -coverpkg=$(go list ./... 2> /dev/null | grep -v pb | grep -v mock | tr '\n' ",") -json -coverprofile=coverage.out > test-report.json
 
