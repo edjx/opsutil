@@ -6,6 +6,9 @@ on:
       imageName:
         required: true
         type: string
+      imageDescription:
+        required: false
+        type: string
 
 jobs:
   docker:
@@ -32,6 +35,9 @@ jobs:
         id: metadata
         uses: docker/metadata-action@v4
         with:
+          labels: |
+            org.opencontainers.image.description=${{ inputs.imageDescription }}
+            org.opencontainers.image.licenses=EDJX Proprietary
           images: |
             ghcr.io/edjx/${{ inputs.imageName }}
           tags: |
