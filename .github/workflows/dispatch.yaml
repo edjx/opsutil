@@ -36,6 +36,6 @@ jobs:
           event-type: "${{ inputs.repo }}"
           client-payload: '{
             "version": "${{ inputs.longVersion }}",
-            "variable": "${{ inputs.repo || inputs.variable }}",
+            "variable": "${{ inputs.variable }}",
             "release": "${{ inputs.release }}"
             }'
