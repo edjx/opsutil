@@ -18,6 +18,10 @@ on:
       target:
         required: true
         type: string
+      branch:
+        required: false
+        default: "false"
+        type: string
     secrets:
       EDJX_GH_TOKEN:
         required: true
@@ -37,5 +41,6 @@ jobs:
           client-payload: '{
             "version": "${{ inputs.longVersion }}",
             "variable": "${{ inputs.variable }}",
-            "release": "${{ inputs.release }}"
+            "release": "${{ inputs.release }}",
+            "branch": "${{ inputs.branch }}",
             }'
