@@ -42,5 +42,5 @@ jobs:
             "version": "${{ inputs.longVersion }}",
             "variable": "${{ inputs.variable }}",
             "release": "${{ inputs.release }}",
-            "branch": "${{ inputs.branch }}",
+            "branch": "${{ inputs.branch }}"
             }'
